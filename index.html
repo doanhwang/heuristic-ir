@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>주식회사 휴리스틱 — IR 사업소개</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #181b23;
+      --accent: #c9a84c;
+      --accent2: #e8c97e;
+      --text: #f0f0f0;
+      --muted: #888;
+      --nav-h: 60px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(15,17,23,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--accent2);
+    }
+
+    .nav-logo svg { width: 30px; height: 30px; }
+
+    .nav-links { display: flex; gap: 8px; }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: color .2s, background .2s;
+    }
+
+    .nav-links a:hover { color: var(--accent2); background: rgba(201,168,76,0.08); }
+
+    .nav-cta {
+      background: var(--accent) !important;
+      color: #111 !important;
+      font-weight: 600 !important;
+    }
+
+    .nav-cta:hover { background: var(--accent2) !important; }
+
+    /* HERO */
+    .hero {
+      margin-top: var(--nav-h);
+      padding: 64px 24px 48px;
+      text-align: center;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(201,168,76,0.12) 0%, transparent 70%);
+    }
+
+    .hero-badge {
+      display: inline-block;
+      border: 1px solid rgba(201,168,76,0.4);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 20px;
+      letter-spacing: .5px;
+    }
+
+    .hero h1 {
+      font-size: clamp(26px, 5vw, 44px);
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 span { color: var(--accent2); }
+
+    .hero p {
+      font-size: clamp(14px, 2.5vw, 17px);
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .stat { text-align: center; }
+    .stat-num { font-size: clamp(22px, 4vw, 32px); font-weight: 800; color: var(--accent2); }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* VIEWER */
+    .viewer-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 16px 80px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    /* Thumbnail nav */
+    .thumb-nav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 4px 12px;
+      margin-bottom: 20px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
+    }
+
+    .thumb-nav::-webkit-scrollbar { height: 4px; }
+    .thumb-nav::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    .thumb-item {
+      flex-shrink: 0;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      overflow: hidden;
+      transition: border-color .2s, opacity .2s;
+      opacity: .5;
+      background: var(--surface);
+      width: 72px;
+    }
+
+    .thumb-item canvas {
+      width: 72px !important;
+      height: auto !important;
+      display: block;
+    }
+
+    .thumb-item.active { border-color: var(--accent); opacity: 1; }
+    .thumb-item:hover { opacity: .85; }
+
+    .thumb-label {
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+      padding: 3px 0;
+    }
+
+    /* Main canvas */
+    .page-display {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,.7), 0 0 0 1px rgba(201,168,76,0.15);
+      background: #fff;
+      position: relative;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #mainCanvas {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #1a1a1a;
+      gap: 16px;
+    }
+
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(201,168,76,0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text { color: var(--muted); font-size: 14px; }
+
+    /* Controls */
+    .page-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 12px;
+    }
+
+    .ctrl-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid rgba(201,168,76,0.25);
+      color: var(--text);
+      font-size: 14px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      white-space: nowrap;
+    }
+
+    .ctrl-btn:hover { background: rgba(201,168,76,0.12); border-color: var(--accent); }
+    .ctrl-btn:disabled { opacity: .3; cursor: default; }
+
+    .page-counter { font-size: 14px; color: var(--muted); }
+
+    .zoom-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .zoom-btn {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+      width: 34px; height: 34px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s;
+    }
+
+    .zoom-btn:hover { background: rgba(201,168,76,0.12); border-color: var(--accent); }
+
+    .zoom-label { font-size: 12px; color: var(--muted); min-width: 38px; text-align: center; }
+
+    /* All pages */
+    .all-pages { margin-top: 56px; }
+
+    .all-pages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .page-card {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+    }
+
+    .page-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,.5);
+      border-color: rgba(201,168,76,0.4);
+    }
+
+    .page-card canvas { width: 100% !important; height: auto !important; display: block; }
+
+    .page-card-label {
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      nav { padding: 0 16px; }
+      .zoom-controls { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <svg viewBox="0 0 30 30" fill="none">
+      <circle cx="15" cy="15" r="14" stroke="#c9a84c" stroke-width="1.5"/>
+      <circle cx="15" cy="15" r="6" fill="#c9a84c" opacity=".3"/>
+      <circle cx="15" cy="15" r="2.5" fill="#e8c97e"/>
+    </svg>
+    휴리스틱
+  </div>
+  <div class="nav-links">
+    <a href="#viewer">사업소개</a>
+    <a href="#all-pages">전체 페이지</a>
+    <a href="https://www.withheuristic.com" target="_blank" class="nav-cta">공식 홈페이지 →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">INVESTOR RELATIONS · April 2026</div>
+  <h1>주식회사 <span>휴리스틱</span><br>사업소개 IR</h1>
+  <p>생성형 AI 기반 시니어 AX 플랫폼 — 한궁 인프라를 초대형 AI 라이프케어 생태계로 전환합니다.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">67,000</div><div class="stat-label">전국 거점</div></div>
+    <div class="stat"><div class="stat-num">150만</div><div class="stat-label">네트워크 접점</div></div>
+    <div class="stat"><div class="stat-num">1,000억</div><div class="stat-label">3년 누적 매출 목표</div></div>
+    <div class="stat"><div class="stat-num">30개국</div><div class="stat-label">글로벌 네트워크</div></div>
+  </div>
+</section>
+
+<div class="viewer-wrap" id="viewer">
+  <p class="section-title">Executive Summary · 7 Pages</p>
+
+  <div class="thumb-nav" id="thumbNav"></div>
+
+  <div class="page-display" id="pageDisplay">
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner"></div>
+      <div class="loading-text">PDF 로딩 중...</div>
+    </div>
+    <canvas id="mainCanvas"></canvas>
+  </div>
+
+  <div class="page-controls">
+    <button class="ctrl-btn" id="prevBtn" onclick="changePage(-1)" disabled>← 이전</button>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span class="page-counter" id="pageCounter">— / —</span>
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="changeZoom(-0.25)">−</button>
+        <span class="zoom-label" id="zoomLabel">100%</span>
+        <button class="zoom-btn" onclick="changeZoom(0.25)">+</button>
+      </div>
+    </div>
+    <button class="ctrl-btn" id="nextBtn" onclick="changePage(1)" disabled>다음 →</button>
+  </div>
+
+  <div class="all-pages" id="all-pages">
+    <p class="section-title" style="margin-top:0">전체 페이지 보기</p>
+    <div class="all-pages-grid" id="allGrid"></div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 주식회사 휴리스틱 · <a href="https://www.withheuristic.com" target="_blank">withheuristic.com</a></p>
+  <p style="margin-top:8px">본 자료는 투자 참고용이며 투자 권유를 목적으로 하지 않습니다.</p>
+</footer>
+
+<script>
+  // PDF.js worker
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const PDF_URL = 'ir.pdf'; // PDF 파일명
+  const LABELS = [
+    'Executive Summary',
+    '회사 개요 & 한궁 인프라',
+    '세계화 AI 치매예방 프로그램',
+    'AI 치매예방센터 표준 모델',
+    '경로당 기반 구축사업',
+    '뉴스레터 — 협약 & 입법',
+    '뉴스레터 — 글로벌 공략',
+  ];
+
+  let pdfDoc = null;
+  let currentPage = 1;
+  let totalPages = 0;
+  let renderTask = null;
+
+  // devicePixelRatio 반영 → 레티나/고해상도 화면에서 선명하게
+  const DPR = window.devicePixelRatio || 1;
+  // 기본 렌더 스케일: 화면 너비에 맞게 + DPR 적용
+  function getBaseScale() {
+    const displayWidth = Math.min(window.innerWidth - 32, 928); // viewer max-width
+    return (displayWidth / 595) * DPR; // A4 기준 595pt
+  }
+
+  async function init() {
+    try {
+      pdfDoc = await pdfjsLib.getDocument(PDF_URL).promise;
+      totalPages = pdfDoc.numPages;
+
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.getElementById('prevBtn').disabled = false;
+      document.getElementById('nextBtn').disabled = false;
+
+      buildThumbs();
+      buildGrid();
+      renderPage(1);
+    } catch(e) {
+      document.querySelector('.loading-text').textContent = 'PDF를 불러올 수 없습니다.';
+      console.error(e);
+    }
+  }
+
+  async function renderPage(n, canvas, scale) {
+    const isMain = !canvas;
+    const targetCanvas = canvas || document.getElementById('mainCanvas');
+    const targetScale  = scale ?? getBaseScale();
+
+    const page = await pdfDoc.getPage(n);
+    const viewport = page.getViewport({ scale: targetScale });
+
+    // 실제 캔버스 픽셀 크기는 고해상도로
+    targetCanvas.width  = viewport.width;
+    targetCanvas.height = viewport.height;
+
+    // CSS display 크기는 DPR로 나눠서 실제 크기처럼 보이게
+    if (isMain) {
+      targetCanvas.style.width  = (viewport.width  / DPR) + 'px';
+      targetCanvas.style.height = (viewport.height / DPR) + 'px';
+    }
+
+    if (isMain && renderTask) { try { renderTask.cancel(); } catch(_){} }
+
+    const ctx = targetCanvas.getContext('2d');
+    const task = page.render({ canvasContext: ctx, viewport });
+    if (isMain) renderTask = task;
+
+    try { await task.promise; } catch(_) { return; }
+
+    if (isMain) {
+      currentPage = n;
+      document.getElementById('pageCounter').textContent = `${n} / ${totalPages}`;
+      document.getElementById('prevBtn').disabled = n === 1;
+      document.getElementById('nextBtn').disabled = n === totalPages;
+      document.querySelectorAll('.thumb-item').forEach((t,i) =>
+        t.classList.toggle('active', i+1 === n));
+      const thumb = document.getElementById(`thumb-${n}`);
+      if(thumb) thumb.scrollIntoView({inline:'center', behavior:'smooth', block:'nearest'});
+    }
+  }
+
+  function buildThumbs() {
+    const nav = document.getElementById('thumbNav');
+    for (let i = 1; i <= totalPages; i++) {
+      const wrap = document.createElement('div');
+      wrap.className = 'thumb-item' + (i===1 ? ' active' : '');
+      wrap.id = `thumb-${i}`;
+      wrap.onclick = () => renderPage(i);
+
+      const c = document.createElement('canvas');
+      const lbl = document.createElement('div');
+      lbl.className = 'thumb-label';
+      lbl.textContent = `P.${i}`;
+
+      wrap.appendChild(c);
+      wrap.appendChild(lbl);
+      nav.appendChild(wrap);
+
+      renderPage(i, c, 0.5 * DPR);
+    }
+  }
+
+  function buildGrid() {
+    const grid = document.getElementById('allGrid');
+    for (let i = 1; i <= totalPages; i++) {
+      const card = document.createElement('div');
+      card.className = 'page-card';
+      card.onclick = () => {
+        renderPage(i);
+        document.getElementById('viewer').scrollIntoView({behavior:'smooth'});
+      };
+
+      const c = document.createElement('canvas');
+      const lbl = document.createElement('div');
+      lbl.className = 'page-card-label';
+      lbl.textContent = `P.${i} · ${LABELS[i-1] || ''}`;
+
+      card.appendChild(c);
+      card.appendChild(lbl);
+      grid.appendChild(card);
+
+      renderPage(i, c, 0.9 * DPR);
+    }
+  }
+
+  function changePage(delta) {
+    const n = currentPage + delta;
+    if (n < 1 || n > totalPages) return;
+    renderPage(n);
+  }
+
+  function changeZoom(delta) {
+    // zoom은 base scale 배율로 관리
+    const base = getBaseScale();
+    const current = parseFloat(document.getElementById('mainCanvas').dataset.scale || base);
+    const next = Math.min(base * 4, Math.max(base * 0.5, current + delta * base));
+    document.getElementById('mainCanvas').dataset.scale = next;
+    document.getElementById('zoomLabel').textContent = Math.round(next / base * 100) + '%';
+    renderPage(currentPage, null, next);
+  }
+
+  // 창 크기 바뀌면 다시 렌더
+  window.addEventListener('resize', () => {
+    if (pdfDoc) renderPage(currentPage);
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') changePage(1);
+    if (e.key === 'ArrowLeft')  changePage(-1);
+    if (e.key === '+') changeZoom(0.25);
+    if (e.key === '-') changeZoom(-0.25);
+  });
+
+  init();
+</script>
+</body>
+</html>
