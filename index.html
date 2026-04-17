@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>주식회사 휴리스틱 — IR 사업소개</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #181b23;
+      --accent: #c9a84c;
+      --accent2: #e8c97e;
+      --text: #f0f0f0;
+      --muted: #888;
+      --nav-h: 60px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(15,17,23,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--accent2);
+      letter-spacing: -0.3px;
+    }
+
+    .nav-logo svg {
+      width: 30px; height: 30px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: color .2s, background .2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent2);
+      background: rgba(201,168,76,0.08);
+    }
+
+    .nav-cta {
+      background: var(--accent);
+      color: #111 !important;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 7px 16px !important;
+    }
+
+    .nav-cta:hover {
+      background: var(--accent2) !important;
+      color: #000 !important;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      margin-top: var(--nav-h);
+      padding: 72px 24px 56px;
+      text-align: center;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(201,168,76,0.12) 0%, transparent 70%);
+    }
+
+    .hero-badge {
+      display: inline-block;
+      border: 1px solid rgba(201,168,76,0.4);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 20px;
+      letter-spacing: .5px;
+    }
+
+    .hero h1 {
+      font-size: clamp(26px, 5vw, 44px);
+      font-weight: 800;
+      line-height: 1.25;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 span { color: var(--accent2); }
+
+    .hero p {
+      font-size: clamp(14px, 2.5vw, 17px);
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: 800;
+      color: var(--accent2);
+    }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ── VIEWER ── */
+    .viewer-wrap {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 0 16px 80px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    /* thumbnail nav */
+    .thumb-nav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 4px 12px;
+      margin-bottom: 24px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
+    }
+
+    .thumb-nav::-webkit-scrollbar { height: 4px; }
+    .thumb-nav::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    .thumb-btn {
+      flex-shrink: 0;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      overflow: hidden;
+      transition: border-color .2s, opacity .2s;
+      opacity: .55;
+      background: none;
+      padding: 0;
+    }
+
+    .thumb-btn img {
+      width: 72px;
+      height: 102px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .thumb-btn.active {
+      border-color: var(--accent);
+      opacity: 1;
+    }
+
+    .thumb-label {
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+      padding: 3px 0;
+    }
+
+    /* main page display */
+    .page-display {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,.6), 0 0 0 1px rgba(201,168,76,0.15);
+      background: #fff;
+    }
+
+    .page-display img {
+      width: 100%;
+      display: block;
+    }
+
+    /* prev / next */
+    .page-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .ctrl-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid rgba(201,168,76,0.25);
+      color: var(--text);
+      font-size: 14px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+
+    .ctrl-btn:hover { background: rgba(201,168,76,0.12); border-color: var(--accent); }
+    .ctrl-btn:disabled { opacity: .3; cursor: default; }
+
+    .page-counter {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* all pages strip */
+    .all-pages {
+      margin-top: 56px;
+    }
+
+    .all-pages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .page-card {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+    }
+
+    .page-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,.5);
+      border-color: rgba(201,168,76,0.4);
+    }
+
+    .page-card img {
+      width: 100%;
+      display: block;
+    }
+
+    .page-card-label {
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* responsive nav */
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      nav { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="15" cy="15" r="14" stroke="#c9a84c" stroke-width="1.5"/>
+      <circle cx="15" cy="15" r="6" fill="#c9a84c" opacity=".3"/>
+      <circle cx="15" cy="15" r="2.5" fill="#e8c97e"/>
+    </svg>
+    휴리스틱
+  </div>
+  <div class="nav-links">
+    <a href="#viewer">사업소개</a>
+    <a href="#all-pages">전체 페이지</a>
+    <a href="https://www.withheuristic.com" target="_blank" class="nav-cta">공식 홈페이지 →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">INVESTOR RELATIONS · April 2026</div>
+  <h1>주식회사 <span>휴리스틱</span><br>사업소개 IR</h1>
+  <p>생성형 AI 기반 시니어 AX 플랫폼 — 한궁 인프라를 초대형 AI 라이프케어 생태계로 전환합니다.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">67,000</div>
+      <div class="stat-label">전국 거점</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">150만</div>
+      <div class="stat-label">네트워크 접점</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">1,000억</div>
+      <div class="stat-label">3년 누적 매출 목표</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">30개국</div>
+      <div class="stat-label">글로벌 네트워크</div>
+    </div>
+  </div>
+</section>
+
+<!-- VIEWER -->
+<div class="viewer-wrap" id="viewer">
+  <p class="section-title">Executive Summary · 7 Pages</p>
+
+  <!-- thumbnails -->
+  <div class="thumb-nav" id="thumbNav"></div>
+
+  <!-- main image -->
+  <div class="page-display">
+    <img id="mainImg" src="" alt="IR 사업소개 페이지" />
+  </div>
+
+  <!-- controls -->
+  <div class="page-controls">
+    <button class="ctrl-btn" id="prevBtn" onclick="changePage(-1)">← 이전</button>
+    <span class="page-counter" id="pageCounter"></span>
+    <button class="ctrl-btn" id="nextBtn" onclick="changePage(1)">다음 →</button>
+  </div>
+
+  <!-- all pages -->
+  <div class="all-pages" id="all-pages">
+    <p class="section-title" style="margin-top:0">전체 페이지 보기</p>
+    <div class="all-pages-grid" id="allGrid"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 주식회사 휴리스틱 · <a href="https://www.withheuristic.com" target="_blank">withheuristic.com</a></p>
+  <p style="margin-top:8px">본 자료는 투자 참고용이며 투자 권유를 목적으로 하지 않습니다.</p>
+</footer>
+
+<script>
+  const TOTAL = 7;
+  const LABELS = [
+    'Executive Summary',
+    '회사 개요 & 한궁 인프라',
+    '세계화 AI 치매예방 프로그램',
+    'AI 치매예방센터 표준 모델',
+    '경로당 기반 구축사업',
+    '뉴스레터 — 협약 & 입법',
+    '뉴스레터 — 글로벌 공략',
+  ];
+
+  let current = 1;
+
+  function imgPath(n) {
+    return `images/page_${String(n).padStart(2,'0')}.jpg`;
+  }
+
+  // build thumbnails
+  const thumbNav = document.getElementById('thumbNav');
+  for (let i = 1; i <= TOTAL; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'thumb-btn' + (i === 1 ? ' active' : '');
+    btn.id = `thumb-${i}`;
+    btn.onclick = () => goTo(i);
+    btn.innerHTML = `
+      <img src="${imgPath(i)}" alt="Page ${i}" loading="lazy"/>
+      <div class="thumb-label">P.${i}</div>
+    `;
+    thumbNav.appendChild(btn);
+  }
+
+  // build all-pages grid
+  const grid = document.getElementById('allGrid');
+  for (let i = 1; i <= TOTAL; i++) {
+    const card = document.createElement('div');
+    card.className = 'page-card';
+    card.onclick = () => { goTo(i); document.getElementById('viewer').scrollIntoView({behavior:'smooth'}); };
+    card.innerHTML = `
+      <img src="${imgPath(i)}" alt="${LABELS[i-1]}" loading="lazy"/>
+      <div class="page-card-label">P.${i} · ${LABELS[i-1]}</div>
+    `;
+    grid.appendChild(card);
+  }
+
+  function goTo(n) {
+    current = n;
+    document.getElementById('mainImg').src = imgPath(n);
+    document.getElementById('mainImg').alt = LABELS[n-1];
+    document.getElementById('pageCounter').textContent = `${n} / ${TOTAL}`;
+    document.getElementById('prevBtn').disabled = n === 1;
+    document.getElementById('nextBtn').disabled = n === TOTAL;
+    document.querySelectorAll('.thumb-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`thumb-${n}`).classList.add('active');
+
+    // scroll thumbnail into view
+    const t = document.getElementById(`thumb-${n}`);
+    t.scrollIntoView({inline:'center', behavior:'smooth', block:'nearest'});
+  }
+
+  function changePage(delta) { goTo(current + delta); }
+
+  // keyboard nav
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' && current < TOTAL) changePage(1);
+    if (e.key === 'ArrowLeft'  && current > 1)     changePage(-1);
+  });
+
+  // init
+  goTo(1);
+</script>
+</body>
+</html>
